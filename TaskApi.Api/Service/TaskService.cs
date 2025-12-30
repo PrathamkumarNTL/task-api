@@ -1,48 +1,49 @@
 public class TaskService : ITaskService
 {
-    public static readonly List<TaskItem> _tasks = new();
-    private static int _id=1;
+    private readonly ITaskRepository _repository;
+
+    public TaskService(ITaskRepository repository)
+    {
+        _repository = repository;
+    }
     
     public List<TaskItem> GetAll()
     {
-        return _tasks;
+        return _repository.GetAll();
     }
 
     public TaskItem? GetById(int id)
     {
-        return _tasks.FirstOrDefault(t =>t.id == id);
+        return _repository.GetById(id);
     }
 
     public TaskItem Create(CreateTaskDto dto)
     {
         var task = new TaskItem
         {
-            id = _id++,
             Title = dto.Title,
             IsCompleted = false
         };
 
-        _tasks.Add(task);
-        return task;
+        return _repository.Add(task);
     }
 
     public bool MarkCompleted(int id)
     {
-        var task = GetById(id);
+        var task = _repository.GetById(id);
         if(task == null)
             return false;
 
         task.IsCompleted = true;
-        return true;
+        return _repository.Update(task);
     }
 
 
     public bool Delete(int id)
     {
-        var task = GetById(id);
-        if(task == null)
-            return false;
-        _tasks.Remove(task);
-        return true;
+       var task = _repository.GetById(id);
+       if(task == null) return false;
+
+       return _repository.Delete(task);
     }
 }
