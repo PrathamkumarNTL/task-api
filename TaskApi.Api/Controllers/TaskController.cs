@@ -4,19 +4,23 @@ using Microsoft.AspNetCore.Mvc;
 [Route("api/[controller]")]
 public class TaskController : ControllerBase
 {
-    private static readonly List<TaskItem> Tasks = new();
-    private static int _id = 1;
+    private readonly ITaskService _taskService;
+
+    public TaskController(ITaskService taskService)
+    {
+        _taskService = taskService;
+    }
 
     [HttpGet]
     public IActionResult GetAll()
     {
-        return Ok(Tasks);
+        return Ok(_taskService.GetAll());
     }
 
     [HttpGet("{id}")]
     public IActionResult GetById(int id)
     {
-        var task = Tasks.FirstOrDefault(x => x.id == id);
+        var task = _taskService.GetById(id);
         if(task == null)
             return NotFound();
 
@@ -26,36 +30,25 @@ public class TaskController : ControllerBase
     [HttpPost]
     public IActionResult Create(CreateTaskDto dto)
     {
-        var task = new TaskItem
-        {
-            id = _id++,
-            Title = dto.Title,
-            IsCompleted = false
-        };
-
-        Tasks.Add(task);
-        return CreatedAtAction(nameof(GetById),new {Id = task.id},task);
+        var task = _taskService.Create(dto);
+        return CreatedAtAction(nameof(GetById),new {id = task.id},task);
     }
 
     [HttpPut("{id}")]
     public IActionResult Update(int id)
     {
-        var task = Tasks.FirstOrDefault(x =>x.id == id);
-        if(task == null)
-            return  NotFound();
-        
-        task.IsCompleted = true;
+        var result = _taskService.MarkCompleted(id);
+        if(!result)
+            return NotFound();
         return NoContent();
     }
 
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
     {
-        var task = Tasks.FirstOrDefault(x => x.id == id);
-        if (task == null)
+        var result = _taskService.Delete(id);
+        if(!result)
             return NotFound();
-        
-        Tasks.Remove(task);
         return NoContent();
     }
 

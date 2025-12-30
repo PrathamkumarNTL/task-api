@@ -6,6 +6,7 @@ builder.Services.AddControllers();
 // 🔹 Swagger services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<ITaskService,TaskService>();
 
 var app = builder.Build();
 
