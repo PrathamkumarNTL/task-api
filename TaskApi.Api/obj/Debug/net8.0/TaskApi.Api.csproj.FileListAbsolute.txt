@@ -17,6 +17,7 @@ D:\PrathamProject\DotNet-Backend-Journey\Month-1-Task-API\TaskApi.Api\obj\Debug\
 D:\PrathamProject\DotNet-Backend-Journey\Month-1-Task-API\TaskApi.Api\obj\Debug\net8.0\TaskApi.Api.csproj.CoreCompileInputs.cache
 D:\PrathamProject\DotNet-Backend-Journey\Month-1-Task-API\TaskApi.Api\obj\Debug\net8.0\TaskApi.Api.MvcApplicationPartsAssemblyInfo.cs
 D:\PrathamProject\DotNet-Backend-Journey\Month-1-Task-API\TaskApi.Api\obj\Debug\net8.0\TaskApi.Api.MvcApplicationPartsAssemblyInfo.cache
+D:\PrathamProject\DotNet-Backend-Journey\Month-1-Task-API\TaskApi.Api\obj\Debug\net8.0\TaskApi.Api.sourcelink.json
 D:\PrathamProject\DotNet-Backend-Journey\Month-1-Task-API\TaskApi.Api\obj\Debug\net8.0\scopedcss\bundle\TaskApi.Api.styles.css
 D:\PrathamProject\DotNet-Backend-Journey\Month-1-Task-API\TaskApi.Api\obj\Debug\net8.0\staticwebassets.build.json
 D:\PrathamProject\DotNet-Backend-Journey\Month-1-Task-API\TaskApi.Api\obj\Debug\net8.0\staticwebassets.development.json
