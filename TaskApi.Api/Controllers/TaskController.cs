@@ -31,7 +31,7 @@ public class TaskController : ControllerBase
     public IActionResult Create(CreateTaskDto dto)
     {
         var task = _taskService.Create(dto);
-        return CreatedAtAction(nameof(GetById),new {id = task.id},task);
+        return CreatedAtAction(nameof(GetById),new {id = task.Id},task);
     }
 
     [HttpPut("{id}")]

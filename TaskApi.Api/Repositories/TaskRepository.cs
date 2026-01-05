@@ -1,33 +1,41 @@
 public class TaskRepository : ITaskRepository
 {
-    private static readonly List<TaskItem> _tasks = new();
-    private static int _id=1;
+    private readonly AppDbContext _context;
+
+    public TaskRepository(AppDbContext context)
+    {
+        _context = context;
+    }
 
     public List<TaskItem> GetAll()
     {
-        return _tasks;
+        return _context.Tasks.ToList();
     }
 
     public TaskItem? GetById(int id)
     {
-        return _tasks.FirstOrDefault(t=> t.id == id);
+        return _context.Tasks.FirstOrDefault(t=> t.Id == id);
     }
 
     public TaskItem Add(TaskItem task)
     {
-        task.id = _id++;
-        _tasks.Add(task);
+        _context.Tasks.Add(task);
+        _context.SaveChanges();
         return task;
     }
 
     public bool Update(TaskItem task)
     {
+        _context.Tasks.Update(task);
+        _context.SaveChanges();
         return true;
     }
     
 
     public bool Delete(TaskItem task)
     {
-        return _tasks.Remove(task);
+        _context.Tasks.Remove(task);
+        _context.SaveChanges();
+        return true;
     }
 }

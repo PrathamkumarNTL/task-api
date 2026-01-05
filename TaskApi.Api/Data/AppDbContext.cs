@@ -1,0 +1,27 @@
+// using Microsoft.EntityFrameworkCore;
+
+// namespace TaskApi.Api.Data
+// {
+//     public class AppDbContext : DbContext
+//     {
+//         public AppDbContext(DbContextOptions<AppDbContext> options)
+//             : base(options)
+//         {
+//         }
+
+//         public DbSet<TaskItem> Tasks { get; set; } = null!;
+//     }
+// }
+
+
+using Microsoft.EntityFrameworkCore;
+
+public class AppDbContext : DbContext
+{
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    {
+        
+    }
+
+    public DbSet<TaskItem> Tasks => Set<TaskItem>();
+}
