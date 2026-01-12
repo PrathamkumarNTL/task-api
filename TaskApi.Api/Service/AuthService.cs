@@ -16,10 +16,14 @@ public class AuthService : IAuthService
 
     public void Register(RegisterDto dto)
     {
+        var hash = PasswordHasher.Hash(dto.Password,out var salt);
+
         var user = new User
         {
             Username = dto.Username,
-            PasswordHash = PasswordHasher.Hash(dto.Password)
+            PasswordHash  = hash,
+            PasswordSalt = salt,
+            Role = "User"
         };
 
         _context.Users.Add(user);
@@ -30,9 +34,14 @@ public class AuthService : IAuthService
     {
         var user = _context.Users.FirstOrDefault(u => u.Username == dto.Username);
         if (user == null)
-            throw new Exception("Invalid credentials");
+            throw new UnauthorizedAccessException("Invalid username or password");
 
-        // (password verification will improve tomorrow)
+        var valid = PasswordHasher.Verify(dto.password,user.PasswordHash,user.PasswordSalt);
+
+        if (!valid)
+        {
+            throw new UnauthorizedAccessException("Invalid username or password");
+        }
 
         return GenerateToken(user);
     }
@@ -41,7 +50,8 @@ public class AuthService : IAuthService
     {
         var claims = new[]
         {
-            new Claim(ClaimTypes.Name,user.Username)
+            new Claim(ClaimTypes.Name,user.Username),
+            new Claim(ClaimTypes.Role,user.Role)
         };
 
 

@@ -12,5 +12,8 @@ public class User
     [Required]
     public string PasswordHash{get;set;} = string.Empty;
 
+    public byte[] PasswordSalt {get;set;} = Array.Empty<byte>();
+    public string Role {get;set;} = "User";
+
 
 }

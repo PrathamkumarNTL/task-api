@@ -45,6 +45,7 @@ public class TaskController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles ="Admin")]
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
     {
