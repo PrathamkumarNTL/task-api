@@ -5,6 +5,10 @@
 
 # dotenv files
 .env
+.venv/
+venv/
+env/
+
 
 # .NET build output
 bin/
