@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
@@ -30,20 +31,48 @@ public class AuthService : IAuthService
         _context.SaveChanges();
     }
 
-    public string Login(LoginDto dto)
+    // public string Login(LoginDto dto)
+    // {
+    //     var user = _context.Users.FirstOrDefault(u => u.Username == dto.Username);
+    //     if (user == null)
+    //         throw new UnauthorizedAccessException("Invalid username or password");
+
+    //     var valid = PasswordHasher.Verify(dto.password,user.PasswordHash,user.PasswordSalt);
+
+    //     if (!valid)
+    //     {
+    //         throw new UnauthorizedAccessException("Invalid username or password");
+    //     }
+
+    //     return GenerateToken(user);
+    // }
+
+
+    public AuthResponse Login(LoginDto dto)
     {
         var user = _context.Users.FirstOrDefault(u => u.Username == dto.Username);
-        if (user == null)
+        if(user == null)
             throw new UnauthorizedAccessException("Invalid username or password");
 
-        var valid = PasswordHasher.Verify(dto.password,user.PasswordHash,user.PasswordSalt);
+        var valid = PasswordHasher.Verify(
+            dto.password,
+            user.PasswordHash,
+            user.PasswordSalt
+        );
 
-        if (!valid)
+        if(!valid)
+            throw new UnauthorizedAccessException("Invalid username or password");
+
+        user.RefreshToken = GenerateRefreshToken();
+        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+        _context.SaveChanges();
+
+        return new AuthResponse
         {
-            throw new UnauthorizedAccessException("Invalid username or password");
-        }
-
-        return GenerateToken(user);
+            AccessToken = GenerateToken(user),
+            RefreshToken = user.RefreshToken
+        };
     }
 
     private string GenerateToken(User user)
@@ -63,10 +92,27 @@ public class AuthService : IAuthService
             issuer:_config["Jwt:Issuer"],
             audience:_config["Jwt:Audience"],
             claims:claims,
-            expires:DateTime.Now.AddHours(1),
+            expires:DateTime.Now.AddMinutes(5),
             signingCredentials:creds
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private string GenerateRefreshToken()
+    {
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+    }
+
+    public string RefreshToken(string refreshToken)
+    {
+        var user = _context.Users.FirstOrDefault(u => 
+        u.RefreshToken == refreshToken && u.RefreshTokenExpiry > DateTime.UtcNow
+        );
+
+        if(user == null)
+            throw new UnauthorizedAccessException("Invalid or expired refreshtoken");
+        
+        return GenerateToken(user);
     }
 }

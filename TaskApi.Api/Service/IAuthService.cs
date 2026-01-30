@@ -1,5 +1,6 @@
 public interface IAuthService
 {
     void Register(RegisterDto dto);
-    string Login(LoginDto dto);
+    AuthResponse Login(LoginDto dto);
+    string RefreshToken(string refreshToken);
 }

@@ -1,3 +1,4 @@
+using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -21,7 +22,14 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public IActionResult Login(LoginDto dto)
     {
-        var token = _authService.Login(dto);
-        return Ok(new {token});
+        var response = _authService.Login(dto);
+        return Ok(response);
+    }
+
+    [HttpPost("refresh")]
+    public IActionResult Refresh(RefreshTokenDto dto)
+    {
+        var newToken = _authService.RefreshToken(dto.RefreshToken);
+        return Ok(new {accessToken = newToken});
     }
 }
