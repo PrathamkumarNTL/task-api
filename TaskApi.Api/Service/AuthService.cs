@@ -8,15 +8,19 @@ public class AuthService : IAuthService
 {
     private readonly AppDbContext _context;
     private readonly IConfiguration _config;
+    private readonly ILogger<AuthService> _logger;
 
-    public AuthService(AppDbContext context,IConfiguration config)
+    public AuthService(AppDbContext context,IConfiguration config,ILogger<AuthService> logger)
     {
         _config = config;
         _context = context;
+        _logger = logger;
     }
 
     public void Register(RegisterDto dto)
     {
+        //throw new Exception("Test exception from register");
+
         var hash = PasswordHasher.Hash(dto.Password,out var salt);
 
         var user = new User
@@ -29,30 +33,18 @@ public class AuthService : IAuthService
 
         _context.Users.Add(user);
         _context.SaveChanges();
+
+        _logger.LogInformation("User {Username} registered",dto.Username);
     }
-
-    // public string Login(LoginDto dto)
-    // {
-    //     var user = _context.Users.FirstOrDefault(u => u.Username == dto.Username);
-    //     if (user == null)
-    //         throw new UnauthorizedAccessException("Invalid username or password");
-
-    //     var valid = PasswordHasher.Verify(dto.password,user.PasswordHash,user.PasswordSalt);
-
-    //     if (!valid)
-    //     {
-    //         throw new UnauthorizedAccessException("Invalid username or password");
-    //     }
-
-    //     return GenerateToken(user);
-    // }
-
 
     public AuthResponse Login(LoginDto dto)
     {
         var user = _context.Users.FirstOrDefault(u => u.Username == dto.Username);
         if(user == null)
+        {
+            //_logger.LogWarning("Invalid login attempt for {Username}",dto.Username);
             throw new UnauthorizedAccessException("Invalid username or password");
+        }
 
         var valid = PasswordHasher.Verify(
             dto.password,
@@ -61,12 +53,17 @@ public class AuthService : IAuthService
         );
 
         if(!valid)
+        {
+            _logger.LogWarning("Invalid login attempt for {Username}",dto.Username);
             throw new UnauthorizedAccessException("Invalid username or password");
+        }
 
         user.RefreshToken = GenerateRefreshToken();
         user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
         _context.SaveChanges();
+
+        _logger.LogInformation("User {Username} logged in",dto.Username);
 
         return new AuthResponse
         {
