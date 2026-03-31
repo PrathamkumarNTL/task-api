@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -106,6 +107,15 @@ public class TaskController : ControllerBase
         if(!result)
             return NotFound();
         return NoContent();
+    }
+
+
+    [HttpPost("trigger-job")]
+    public IActionResult TriggerJob()
+    {
+        BackgroundJob.Enqueue<BackgroundJobService>(x => x.SendEmail("Task created successfully"));
+
+        return Ok();
     }
 
 }

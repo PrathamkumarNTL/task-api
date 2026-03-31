@@ -1,6 +1,8 @@
 using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Hangfire;
+using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -55,6 +57,7 @@ builder.Services.AddScoped<ITaskService,TaskService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ITaskRepository,TaskRepository>();
 builder.Services.AddScoped<IAuthService,AuthService>();
+builder.Services.AddScoped<BackgroundJobService>();
 builder.Services.AddDbContext<AppDbContext>(options => 
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddAuthentication("Bearer")
@@ -80,6 +83,8 @@ builder.Services.AddApiVersioning(options =>
     options.ReportApiVersions = true;
 });
 
+builder.Services.AddHangfire(config => config.UseMemoryStorage());
+builder.Services.AddHangfireServer();
 
 
 
@@ -87,6 +92,7 @@ var app = builder.Build();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseHangfireDashboard();
 
 
 // 🔹 Enable Swagger ALWAYS (for now)
