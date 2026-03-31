@@ -1,15 +1,39 @@
+using Microsoft.Extensions.Caching.Memory;
+
 public class TaskService : ITaskService
 {
     private readonly ITaskRepository _repository;
+    private readonly IMemoryCache _cache;
+    private const string CacheKey = "task_list";
+    private readonly ILogger<TaskService> _logger;
 
-    public TaskService(ITaskRepository repository)
+    public TaskService(ITaskRepository repository,IMemoryCache cache,ILogger<TaskService> logger)
     {
         _repository = repository;
+        _cache = cache;
+        _logger = logger;
     }
     
     public List<TaskItem> GetAll()
     {
-        return _repository.GetAll();
+        //const string cacheKey = "task_list";
+
+        if (!_cache.TryGetValue(CacheKey, out List<TaskItem>? tasks))
+        {
+            _logger.LogInformation("Fetching from DB...");
+
+            tasks = _repository.GetAll(); 
+
+            var cacheOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(5));
+
+            _cache.Set(CacheKey, tasks, cacheOptions);
+        }
+        else
+        {
+            _logger.LogInformation("Fetching from CACHE...");
+        }
+
+        return tasks!;
     }
 
     public TaskItem? GetById(int id)
@@ -25,7 +49,12 @@ public class TaskService : ITaskService
             IsCompleted = false
         };
 
-        return _repository.Add(task);
+        //return _repository.Add(task);
+
+        var result = _repository.Add(task);
+        _cache.Remove(CacheKey);
+
+        return result;
     }
 
     public bool MarkCompleted(int id)
@@ -44,7 +73,9 @@ public class TaskService : ITaskService
        var task = _repository.GetById(id);
        if(task == null) return false;
 
-       return _repository.Delete(task);
+       var result = _repository.Delete(task);
+       _cache.Remove(CacheKey);
+       return result;
     }
 
     public TaskItem? Update(int id, UpdateTaskDto dto)
@@ -62,6 +93,7 @@ public class TaskService : ITaskService
         if(!isUpdated)
             return null;
         
+        _cache.Remove(CacheKey);
         return task;
     }
 }

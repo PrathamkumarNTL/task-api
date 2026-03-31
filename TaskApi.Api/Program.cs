@@ -52,6 +52,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 builder.Services.AddScoped<ITaskService,TaskService>();
+builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ITaskRepository,TaskRepository>();
 builder.Services.AddScoped<IAuthService,AuthService>();
 builder.Services.AddDbContext<AppDbContext>(options => 
