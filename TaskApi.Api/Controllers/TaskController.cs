@@ -14,19 +14,31 @@ public class TaskController : ControllerBase
         _taskService = taskService;
     }
 
+    //[HttpGet]
+    // public IActionResult GetAll()
+    // {
+    //     //return Ok(_taskService.GetAll());
+
+    //     var tasks = _taskService.GetAll();
+
+    //     return Ok(new ApiResponse<List<TaskItem>>
+    //     {
+    //         Success = true,
+    //         Data = tasks,
+    //         Message = "Tasks fetched successfully"
+    //     });
+    // }
+
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] TaskQueryParams query)
     {
-        //return Ok(_taskService.GetAll());
-
-        var tasks = _taskService.GetAll();
-
+        var result = await _taskService.GetAll(query);
         return Ok(new ApiResponse<List<TaskItem>>
-        {
-            Success = true,
-            Data = tasks,
-            Message = "Tasks fetched successfully"
-        });
+    {
+        Success = true,
+        Data = result,
+        Message = "Tasks fetched successfully"
+    });
     }
 
     [HttpGet("{id}")]

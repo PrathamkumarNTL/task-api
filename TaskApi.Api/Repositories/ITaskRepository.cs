@@ -5,4 +5,5 @@ public interface ITaskRepository
     TaskItem Add(TaskItem task);
     bool Update(TaskItem task);
     bool Delete(TaskItem task);
+    Task<List<TaskItem>> GetAll(TaskQueryParams query);
 }

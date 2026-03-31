@@ -14,26 +14,9 @@ public class TaskService : ITaskService
         _logger = logger;
     }
     
-    public List<TaskItem> GetAll()
+    public async Task<List<TaskItem>> GetAll(TaskQueryParams query)
     {
-        //const string cacheKey = "task_list";
-
-        if (!_cache.TryGetValue(CacheKey, out List<TaskItem>? tasks))
-        {
-            _logger.LogInformation("Fetching from DB...");
-
-            tasks = _repository.GetAll(); 
-
-            var cacheOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(5));
-
-            _cache.Set(CacheKey, tasks, cacheOptions);
-        }
-        else
-        {
-            _logger.LogInformation("Fetching from CACHE...");
-        }
-
-        return tasks!;
+        return await _repository.GetAll(query);
     }
 
     public TaskItem? GetById(int id)

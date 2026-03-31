@@ -1,6 +1,6 @@
 public interface ITaskService
 {
-    List<TaskItem> GetAll();
+    Task<List<TaskItem>> GetAll(TaskQueryParams query);
     TaskItem? GetById(int id);
     TaskItem Create(CreateTaskDto dto);
     TaskItem? Update(int id,UpdateTaskDto dto);

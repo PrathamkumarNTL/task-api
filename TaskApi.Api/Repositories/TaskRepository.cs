@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 public class TaskRepository : ITaskRepository
 {
     private readonly AppDbContext _context;
@@ -37,5 +39,27 @@ public class TaskRepository : ITaskRepository
         _context.Tasks.Remove(task);
         _context.SaveChanges();
         return true;
+    }
+
+    public async Task<List<TaskItem>> GetAll(TaskQueryParams query)
+    {
+        var tasks = _context.Tasks.AsQueryable();
+
+        //filtering
+        if (query.IsCompleted.HasValue)
+        {
+            tasks =  tasks.Where(t => t.IsCompleted == query.IsCompleted);
+        }
+
+        //search
+        if (!string.IsNullOrEmpty(query.Search))
+        {
+            tasks = tasks.Where(t => t.Title.Contains(query.Search));
+        }
+
+        //pagination
+        tasks = tasks.Skip((query.page - 1) * query.pageSize).Take(query.pageSize);
+
+        return await tasks.AsNoTracking().ToListAsync();
     }
 }
