@@ -46,4 +46,22 @@ public class TaskService : ITaskService
 
        return _repository.Delete(task);
     }
+
+    public TaskItem? Update(int id, UpdateTaskDto dto)
+    {
+        var task = _repository.GetById(id);
+
+        if(task == null)
+            return null;
+        
+        task.Title = dto.Title;
+        task.IsCompleted = dto.IsCompleted;
+
+        var isUpdated = _repository.Update(task);
+
+        if(!isUpdated)
+            return null;
+        
+        return task;
+    }
 }

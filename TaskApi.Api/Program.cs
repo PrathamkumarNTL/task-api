@@ -1,6 +1,7 @@
 using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -69,6 +70,16 @@ builder.Services.AddAuthentication("Bearer")
                 IssuerSigningKey= new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
             };
         });
+
+
+builder.Services.AddApiVersioning(options =>
+{
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new ApiVersion(1,0);
+    options.ReportApiVersions = true;
+});
+
+
 
 
 var app = builder.Build();

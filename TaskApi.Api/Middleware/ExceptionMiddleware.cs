@@ -21,16 +21,18 @@ public class ExceptionMiddleware
         catch(Exception ex)
         {
             _logger.LogError(ex,"Unhandled Exception Error Occured");
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            context.Response.ContentType = "application/json";
-
-            var response = new
+            
+            var response = new ApiResponse<string>
             {
-              message = "Something went wrong",
-              detail = ex.Message  
+              Success = false,
+              Message = "Something went wrong",
+              Data = ex.Message 
             };
+            
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = 500;
 
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+            await context.Response.WriteAsJsonAsync(response);
         }
     }
 }

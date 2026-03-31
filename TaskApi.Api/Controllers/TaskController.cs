@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 
 [Authorize]
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[ApiVersion("1.0")]
 public class TaskController : ControllerBase
 {
     private readonly ITaskService _taskService;
@@ -16,7 +17,16 @@ public class TaskController : ControllerBase
     [HttpGet]
     public IActionResult GetAll()
     {
-        return Ok(_taskService.GetAll());
+        //return Ok(_taskService.GetAll());
+
+        var tasks = _taskService.GetAll();
+
+        return Ok(new ApiResponse<List<TaskItem>>
+        {
+            Success = true,
+            Data = tasks,
+            Message = "Tasks fetched successfully"
+        });
     }
 
     [HttpGet("{id}")]
@@ -24,25 +34,56 @@ public class TaskController : ControllerBase
     {
         var task = _taskService.GetById(id);
         if(task == null)
-            return NotFound();
+            return NotFound(new ApiResponse<string>
+            {
+                Success = false,
+                Data = null,
+                Message = "Task not found"
+            });
 
-        return Ok(task);
+        //return Ok(task);
+
+        return Ok(new ApiResponse<TaskItem>
+        {
+            Success = true,
+            Data = task,
+            Message = "Id fetched successfully"
+        });
     }
 
     [HttpPost]
     public IActionResult Create(CreateTaskDto dto)
     {
         var task = _taskService.Create(dto);
-        return CreatedAtAction(nameof(GetById),new {id = task.Id},task);
+        //return CreatedAtAction(nameof(GetById),new {id = task.Id},task);
+
+        return Ok(new ApiResponse<TaskItem>
+        {
+            Success = true,
+            Data = task,
+            Message = "Task created successfully"
+        });
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update(int id)
+    public IActionResult Update(int id,UpdateTaskDto dto)
     {
-        var result = _taskService.MarkCompleted(id);
-        if(!result)
-            return NotFound();
-        return NoContent();
+        var updateTask = _taskService.Update(id,dto);
+        if(updateTask == null)
+        {
+            return NotFound(new ApiResponse<string>
+            {
+               Success = false,
+               Message = "Task not found" 
+            });
+        }
+
+        return Ok(new ApiResponse<TaskItem>
+        {
+           Success = true,
+           Data = updateTask,
+           Message = "Task updated successfully" 
+        });
     }
 
     [Authorize(Roles ="Admin")]
