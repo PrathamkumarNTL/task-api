@@ -9,9 +9,9 @@ public class TaskRepository : ITaskRepository
         _context = context;
     }
 
-    public List<TaskItem> GetAll()
+    public async Task<List<TaskItem>> GetAll()
     {
-        return _context.Tasks.ToList();
+        return await _context.Tasks.ToListAsync();
     }
 
     public TaskItem? GetById(int id)

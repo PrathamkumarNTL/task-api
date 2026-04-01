@@ -58,8 +58,11 @@ builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ITaskRepository,TaskRepository>();
 builder.Services.AddScoped<IAuthService,AuthService>();
 builder.Services.AddScoped<BackgroundJobService>();
+
+//Database connection
 builder.Services.AddDbContext<AppDbContext>(options => 
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddAuthentication("Bearer")
         .AddJwtBearer(options =>
         {
